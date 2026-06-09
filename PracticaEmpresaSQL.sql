@@ -29,8 +29,8 @@ nSalario
 */
 
 -- Creación de la base de datos y tablas
-use master
-go
+USE master
+GO
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'EmpresaSQL')
 BEGIN
@@ -42,8 +42,8 @@ GO
 CREATE DATABASE EmpresaSQL;
 GO
 
-use EmpresaSQL
-go
+USE EmpresaSQL
+GO
 
 -- Creación de tabla TDepartamento
 CREATE TABLE TDepartamento (
@@ -66,10 +66,11 @@ CREATE TABLE TEmpleado (
     nDepartamentoID INT,
     nCargoID INT,
     dFechaContratacion DATE DEFAULT GETDATE(),
-    nSalario DECIMAL(18, 2) CHECK (nSalario > 300),
+    nSalario DECIMAL(18, 2) CONSTRAINT CK_TEmpleado_Salario CHECK (nSalario > 300),
     CONSTRAINT FK_TEmpleado_TDepartamento FOREIGN KEY (nDepartamentoID) REFERENCES TDepartamento(nDepartamentoID),
     CONSTRAINT FK_TEmpleado_TCargo FOREIGN KEY (nCargoID) REFERENCES TCargo(nCargoID)
 );
+GO
 
 -- Creación de tabla TProyecto
 CREATE TABLE TProyecto (
@@ -87,6 +88,8 @@ CREATE TABLE TEmpleadoProyecto (
     CONSTRAINT FK_TEmpleadoProyecto_TEmpleado FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
     CONSTRAINT FK_TEmpleadoProyecto_TProyecto FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
 );
+GO
+
 
 /* Parte II. Modificación de Estructuras (ALTER)
 16. Agregar columna cEmail a TEmpleado.
@@ -109,28 +112,40 @@ CREATE TABLE TEmpleadoProyecto (
 -- Modificación de estructuras
 
 -- Columnas agregadas a la tabla TEmpleado
-ALTER Table TEmpleado
-ADD cEmail varchar(255) UNIQUE,
-    cTelefono varchar(255),
-    cDireccion varchar(255),
-    nEdad INT CHECK (nEdad >= 18 AND nEdad <= 65),
-    bActivo BIT DEFAULT 1,
-    cGenero CHAR(1) CHECK (cGenero IN ('M', 'F')),
+-- Nota: Definimos nombres explícitos a las restricciones para que puedan ser eliminadas en la Parte VII sin conflictos.
+ALTER TABLE TEmpleado
+ADD cEmail VARCHAR(255),
+    cTelefono VARCHAR(255),
+    cDireccion VARCHAR(255),
+    nEdad INT,
+    bActivo BIT CONSTRAINT DF_TEmpleado_Activo DEFAULT 1,
+    cGenero CHAR(1) CONSTRAINT CK_TEmpleado_Genero CHECK (cGenero IN ('M', 'F')),
     dFechaNacimiento DATE;
+GO
+
+-- Ahora agregamos las restricciones del ejercicio con nombres explícitos y fijos de forma correcta
+ALTER TABLE TEmpleado
+ADD CONSTRAINT CK_TEmpleado_Edad CHECK (nEdad >= 18 AND nEdad <= 65);
+
+ALTER TABLE TEmpleado
+ADD CONSTRAINT UQ_TEmpleado_Email UNIQUE (cEmail);
+GO
 
 -- Modificación de longitud de columnas
-ALTER table TEmpleado
+ALTER TABLE TEmpleado
 ALTER COLUMN cNombre NVARCHAR(100);
 
-Alter table TEmpleado
+ALTER TABLE TEmpleado
 ALTER COLUMN cApellido NVARCHAR(100);
 
-ALTER table TEmpleado
+ALTER TABLE TEmpleado
 ALTER COLUMN cTelefono VARCHAR(20);
+GO
 
 -- Eliminación de columna
-ALTER table TEmpleado
+ALTER TABLE TEmpleado
 DROP COLUMN cDireccion;
+GO
 
 -- Creación de tabla TSucursal
 CREATE TABLE TSucursal (
@@ -138,6 +153,8 @@ CREATE TABLE TSucursal (
     cNombreSucursal NVARCHAR(255) NOT NULL UNIQUE,
     cDireccionSucursal NVARCHAR(255) NOT NULL
 );
+GO
+
 
 /* Parte III. Inserción de Datos (INSERT)
 31. Insertar 5 departamentos diferentes.
@@ -167,7 +184,7 @@ INSERT INTO TCargo (cNombreCargo) VALUES
 ('Vendedor'),
 ('Asistente');
 
--- Insertar 10 empleados (Tomando en cuanta las alteraciones y restriciones realizadas)
+-- Insertar 10 empleados (Tomando en cuenta las alteraciones y restricciones realizadas)
 -- Formato de cEmail: "primera letra del nombre" + "apellido" + "@empresa.com"
 INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero, dFechaNacimiento) VALUES
 ('12345678A', 'Juan', 'Pérez', 1, 1, 5000, 'JP@empresa.com', '123456789', 30, 'M', '1994-01-01'),
@@ -218,7 +235,7 @@ INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSal
 ('55667788O', 'Javier', 'Castro', 5, 5, 3200, 'JC@empresa.com', '555555555', 36, 'M');
 
 -- Intentar insertar un salario negativo y analizar el error 
--- (Nota: Se cambió el correo a 'S_MENDEZ@' para no romper la restricción UNIQUE antes del CHECK)
+-- (Nota: Se utiliza una dirección de correo alternativa para que la restricción UNIQUE no opaque la validación del CHECK)
 PRINT '--- INTENTO DE INSERCIÓN ERRÓNEA (SALARIO NEGATIVO) ---';
 BEGIN TRY
     INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
@@ -234,6 +251,7 @@ La restricción CHECK especifica que el valor del salario debe ser mayor que 300
 y el sistema de gestión de bases de datos (DBMS) genera un error indicando que la inserción no cumple con las condiciones establecidas para esa columna. 
 Esto garantiza la integridad de los datos y evita que se ingresen valores no válidos en la base de datos.
 */
+
 
 /*Parte IV. Actualización de Datos (UPDATE)
 41. Incrementar en 10% el salario de todos los empleados.
@@ -283,6 +301,7 @@ WHERE nProyectoID = 1;
 -- Asignar un nuevo proyecto a un empleado (Ejemplo: Empleado ID 6, Proyecto ID 2)
 INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
 (6, 2);
+GO
 
 /* Parte V. Eliminación de Datos (DELETE)
 49. Eliminar un empleado específico mediante su NIF.
@@ -292,33 +311,37 @@ INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
 53. Eliminar un departamento que no tenga empleados asociados.
 */
 
--- Desactivamos temporalmente las restricciones de llave foránea para poder realizar las operaciones masivas solicitadas sin errores de bloqueo referencial
+-- Desactivamos temporalmente las restricciones de llave foránea para realizar operaciones masivas sin conflictos referenciales
 ALTER TABLE TEmpleadoProyecto NOCHECK CONSTRAINT ALL;
 ALTER TABLE TEmpleado NOCHECK CONSTRAINT ALL;
+GO
 
--- Eliminar un empleado específico mediante su NIF (Ejemplo: NIF '12345678A')
+-- 49. Eliminar un empleado específico mediante su NIF (Ejemplo: NIF '12345678A')
 DELETE FROM TEmpleado
 WHERE cNIF = '12345678A';
 
--- Eliminar todos los empleados inactivos
+-- 50. Eliminar todos los empleados inactivos
 DELETE FROM TEmpleado
 WHERE bActivo = 0;
 
--- Eliminar un proyecto específico (Ejemplo: Proyecto ID 3)
+-- 51. Eliminar un proyecto específico (Ejemplo: Proyecto ID 3)
 DELETE FROM TProyecto
 WHERE nProyectoID = 3;
 
--- Eliminar las asignaciones de un empleado en la tabla TEmpleadoProyecto (Ejemplo: Empleado ID 6)
+-- 52. Eliminar las asignaciones de un empleado en la tabla TEmpleadoProyecto (Ejemplo: Empleado ID 6)
 DELETE FROM TEmpleadoProyecto
 WHERE nEmpleadoID = 6;
 
--- Eliminar un departamento que no tenga empleados asociados (Ejemplo: Departamento ID 5)
+-- 53. Eliminar un departamento que no tenga empleados asociados (Ejemplo: Departamento ID 5)
 DELETE FROM TDepartamento
-WHERE nDepartamentoID = 5
+WHERE nDepartamentoID = 5;
+GO
 
 -- Reactivamos las restricciones para mantener la integridad de la base de datos
 ALTER TABLE TEmpleadoProyecto CHECK CONSTRAINT ALL;
 ALTER TABLE TEmpleado CHECK CONSTRAINT ALL;
+GO
+
 
 /* Parte VI. Consultas de Verificación
 54. Mostrar todos los empleados ordenados por apellido.
@@ -339,88 +362,90 @@ ALTER TABLE TEmpleado CHECK CONSTRAINT ALL;
 69. Mostrar cantidad total de empleados activos.
 70. Mostrar el total de proyectos registrados. */
 
--- Mostrar todos los empleados ordenados por apellido
+-- 54. Mostrar todos los empleados ordenados por apellido
 SELECT * FROM TEmpleado
 ORDER BY cApellido;
 
--- Mostrar empleados con salario mayor a 1,000
+-- 55. Mostrar empleados con salario mayor a 1,000
 SELECT * FROM TEmpleado
 WHERE nSalario > 1000;
 
--- Mostrar empleados activos
+-- 56. Mostrar empleados activos
 SELECT * FROM TEmpleado
 WHERE bActivo = 1;
 
--- Mostrar empleados contratados durante el año actual
+-- 57. Mostrar empleados contratados durante el año actual
 SELECT * FROM TEmpleado
 WHERE YEAR(dFechaContratacion) = YEAR(GETDATE());
 
--- Mostrar empleados y el nombre de su departamento
+-- 58. Mostrar empleados y el nombre de su departamento
 SELECT e.*, d.cNombreDepartamento
 FROM TEmpleado e
 JOIN TDepartamento d ON e.nDepartamentoID = d.nDepartamentoID;
 
--- Mostrar empleados y el nombre de su cargo
+-- 59. Mostrar empleados y el nombre de su cargo
 SELECT e.*, c.cNombreCargo
 FROM TEmpleado e
 JOIN TCargo c ON e.nCargoID = c.nCargoID;
 
--- Mostrar empleados asignados a proyectos
+-- 60. Mostrar empleados asignados a proyectos
 SELECT e.*, p.cNombreProyecto
 FROM TEmpleado e
 JOIN TEmpleadoProyecto ep ON e.nEmpleadoID = ep.nEmpleadoID
 JOIN TProyecto p ON ep.nProyectoID = p.nProyectoID;
 
--- Mostrar cantidad de empleados por departamento
+-- 61. Mostrar cantidad de empleados por departamento
 SELECT d.cNombreDepartamento, COUNT(e.nEmpleadoID) AS CantidadEmpleados
 FROM TDepartamento d
 LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
 GROUP BY d.cNombreDepartamento;
 
--- Mostrar salario promedio por departamento
+-- 62. Mostrar salario promedio por departamento
 SELECT d.cNombreDepartamento, AVG(e.nSalario) AS SalarioPromedio
 FROM TDepartamento d
 LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
 GROUP BY d.cNombreDepartamento;
 
--- Mostrar salario máximo y mínimo por departamento
+-- 63. Mostrar salario máximo y mínimo por departamento
 SELECT d.cNombreDepartamento, MAX(e.nSalario) AS SalarioMaximo, MIN(e.nSalario) AS SalarioMinimo
 FROM TDepartamento d
 LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
 GROUP BY d.cNombreDepartamento;
 
--- Mostrar los proyectos con más de dos empleados asignados
+-- 64. Mostrar los proyectos con más de dos empleados asignados
 SELECT p.cNombreProyecto, COUNT(ep.nEmpleadoID) AS CantidadEmpleados
 FROM TProyecto p
 JOIN TEmpleadoProyecto ep ON p.nProyectoID = ep.nProyectoID
 GROUP BY p.cNombreProyecto
 HAVING COUNT(ep.nEmpleadoID) > 2;
 
--- Mostrar empleados cuyo apellido inicia con "G"
+-- 65. Mostrar empleados cuyo apellido inicia con "G"
 SELECT * FROM TEmpleado
 WHERE cApellido LIKE 'G%';
 
--- Mostrar empleados ordenados por salario descendente
+-- 66. Mostrar empleados ordenados por salario descendente
 SELECT * FROM TEmpleado
 ORDER BY nSalario DESC;
 
--- Mostrar los tres salarios más altos
+-- 67. Mostrar los tres salarios más altos
 SELECT TOP 3 nSalario
 FROM TEmpleado
 ORDER BY nSalario DESC;
 
--- Mostrar empleados con edad entre 25 y 40 años
+-- 68. Mostrar empleados con edad entre 25 y 40 años
 SELECT * FROM TEmpleado
 WHERE nEdad BETWEEN 25 AND 40;
 
--- Mostrar cantidad total de empleados activos
+-- 69. Mostrar cantidad total de empleados activos
 SELECT COUNT(*) AS TotalEmpleadosActivos
 FROM TEmpleado
 WHERE bActivo = 1;
 
--- Mostrar el total de proyectos registrados
+-- 70. Mostrar el total de proyectos registrados
 SELECT COUNT(*) AS TotalProyectos
 FROM TProyecto;
+GO
+
 
 /* Parte VII. Administración de Objetos
 71. Eliminar la restricción CHECK de edad.
@@ -434,67 +459,75 @@ FROM TProyecto;
 79. Eliminar la tabla TSucursal.
 80. Eliminar la base de datos EmpresaSQL.*/
 
--- Eliminar la restricción CHECK de edad
--- Nota: Primero buscamos el nombre asignado por el sistema o usamos el estándar si fue nombrado manualmente.
+-- 71. Eliminar la restricción CHECK de edad (Ahora sí existirá)
 ALTER TABLE TEmpleado
-DROP CONSTRAINT CK__TEmpleado__nEdad__40F9A68C; -- Reemplazar por el nombre real de tu restricción si varía.
+DROP CONSTRAINT CK_TEmpleado_Edad;
 GO
 
--- Eliminar la restricción UNIQUE del correo
+-- 72. Eliminar la restricción UNIQUE del correo (Ahora sí existirá)
 ALTER TABLE TEmpleado
-DROP CONSTRAINT UQ__TEmplead__606967A20601BE06; -- Reemplazar por el nombre real de tu restricción si varía.
+DROP CONSTRAINT UQ_TEmpleado_Email;
 GO
 
--- Agregar nuevamente ambas restricciones (Definiendo nombres fijos para evitar aleatoriedad)
+-- 73. Agregar nuevamente ambas restricciones
 ALTER TABLE TEmpleado
 ADD CONSTRAINT CK_TEmpleado_Edad CHECK (nEdad >= 18 AND nEdad <= 65),
     CONSTRAINT UQ_TEmpleado_Email UNIQUE (cEmail);
 GO
 
--- Eliminar la tabla TEmpleadoProyecto (Se elimina primero por ser la tabla intermedia con llaves foráneas)
+-- 74. Eliminar la tabla TEmpleadoProyecto
 IF OBJECT_ID('TEmpleadoProyecto', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TEmpleadoProyecto;
 END
 GO
 
--- Eliminar la tabla TProyecto
+-- 75. Eliminar la tabla TProyecto
 IF OBJECT_ID('TProyecto', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TProyecto;
 END
 GO
 
--- Eliminar la tabla TEmpleado (Se elimina antes de sus tablas maestras debido a las llaves foráneas)
+-- 76. Eliminar la tabla TEmpleado
 IF OBJECT_ID('TEmpleado', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TEmpleado;
 END
 GO
 
--- Eliminar la tabla TCargo
+-- 77. Eliminar la tabla TCargo
 IF OBJECT_ID('TCargo', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TCargo;
 END
 GO
 
--- Eliminar la tabla TDepartamento
+-- 78. Eliminar la tabla TDepartamento
 IF OBJECT_ID('TDepartamento', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TDepartamento;
 END
 GO
 
--- Eliminar la tabla TSucursal
+-- 79. Eliminar la tabla TSucursal
 IF OBJECT_ID('TSucursal', 'U') IS NOT NULL
 BEGIN
     DROP TABLE TSucursal;
 END
 GO
 
--- Eliminar la base de datos EmpresaSQL
--- Esta parte se cumple al inicio del script
+-- 80. Eliminar la base de datos EmpresaSQL
+-- Nos movemos a master para liberar el contexto antes del borrado absoluto de la primera estructura
+USE master;
+GO
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'EmpresaSQL')
+BEGIN
+    ALTER DATABASE EmpresaSQL SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE EmpresaSQL;
+END
+GO
+
 
 /* Desafios adicionales:
 81. Crear una tabla TCliente con al menos 8 campos y restricciones.
@@ -508,7 +541,13 @@ GO
 89. Consultar promedio de ventas por cliente.
 90. Generar un reporte consolidado utilizando JOIN entre tres tablas.*/
 
--- Crear una tabla TCliente con al menos 8 campos y restricciones
+-- Volvemos a inicializar EmpresaSQL limpia para albergar los desafíos de Clientes y Ventas
+CREATE DATABASE EmpresaSQL;
+GO
+USE EmpresaSQL;
+GO
+
+-- 81. Crear una tabla TCliente con al menos 8 campos y restricciones
 CREATE TABLE TCliente (
     nClienteID INT IDENTITY(1,1) PRIMARY KEY,
     cRUT_NIF NVARCHAR(50) NOT NULL UNIQUE,
@@ -521,7 +560,7 @@ CREATE TABLE TCliente (
     bActivo BIT DEFAULT 1
 );
 
--- Crear una tabla TVenta relacionada con TCliente
+-- 82. Crear una tabla TVenta relacionada con TCliente
 CREATE TABLE TVenta (
     nVentaID INT IDENTITY(1,1) PRIMARY KEY,
     nClienteID INT,
@@ -531,7 +570,19 @@ CREATE TABLE TVenta (
     CONSTRAINT FK_TVenta_TCliente FOREIGN KEY (nClienteID) REFERENCES TCliente(nClienteID)
 );
 
--- Registrar 20 clientes (Incluyendo un par de clientes extra para el desafío de eliminación)
+-- Creación de una tabla complementaria para el JOIN triple solicitado en el punto 90 sin depender de tablas eliminadas
+CREATE TABLE TSucursalVenta (
+    nSucursalID INT IDENTITY(1,1) PRIMARY KEY,
+    cNombreSucursal NVARCHAR(100) NOT NULL
+);
+INSERT INTO TSucursalVenta (cNombreSucursal) VALUES ('Sucursal Central'), ('Sucursal Norte');
+GO
+
+-- Alteración rápida para agregar la relación de la sucursal a la venta de forma transparente
+ALTER TABLE TVenta ADD nSucursalID INT DEFAULT 1;
+GO
+
+-- 83. Registrar 20 clientes (Incluyendo dos casos sin compras para el punto 86)
 INSERT INTO TCliente (cRUT_NIF, cNombre, cApellido, cEmail, cTelefono, nEdad) VALUES
 ('C01', 'Alejandro', 'Silva', 'asilva@mail.com', '555-0101', 25),
 ('C02', 'Beatriz', 'Ortiz', 'bortiz@mail.com', '555-0102', 34),
@@ -553,63 +604,62 @@ INSERT INTO TCliente (cRUT_NIF, cNombre, cApellido, cEmail, cTelefono, nEdad) VA
 ('C18', 'Sofía', 'Fernández', 'sfernandez@mail.com', '555-0118', 24),
 ('C19', 'Tomás', 'Torres', 'ttorres@mail.com', '555-0119', 42),
 ('C20', 'Úrsula', 'Díaz', 'udiaz@mail.com', '555-0120', 28),
-('C21', 'Sin', 'Compras1', 'sc1@mail.com', '555-9991', 30), -- Cliente sin ventas para borrar después
-('C22', 'Sin', 'Compras2', 'sc2@mail.com', '555-9992', 35); -- Cliente sin ventas para borrar después
+('C21', 'Sin', 'Compras1', 'sc1@mail.com', '555-9991', 30),
+('C22', 'Sin', 'Compras2', 'sc2@mail.com', '555-9992', 35);
 
--- Registrar 50 ventas distribuidas en diferentes meses y clientes
-INSERT INTO TVenta (nClienteID, dFechaVenta, nMontoTotal, cMetodoPago) VALUES
-(1, '2026-01-10', 150.00, 'Tarjetas'), (2, '2026-01-15', 2500.00, 'Transferencia'), (3, '2026-01-20', 99.99, 'Efectivo'),
-(4, '2026-02-05', 450.00, 'Tarjetas'), (5, '2026-02-12', 1250.00, 'Transferencia'), (6, '2026-02-25', 300.00, 'Efectivo'),
-(7, '2026-03-02', 850.00, 'Tarjetas'), (8, '2026-03-14', 620.00, 'Efectivo'), (9, '2026-03-22', 1900.00, 'Transferencia'),
-(10, '2026-04-01', 120.00, 'Efectivo'), (11, '2026-04-18', 340.00, 'Tarjetas'), (12, '2026-04-30', 2100.00, 'Transferencia'),
-(13, '2026-05-05', 75.00, 'Efectivo'), (14, '2026-05-15', 540.00, 'Tarjetas'), (15, '2026-05-28', 3200.00, 'Transferencia'),
-(16, '2026-06-02', 410.00, 'Efectivo'), (17, '2026-06-11', 890.00, 'Tarjetas'), (18, '2026-06-20', 1500.00, 'Transferencia'),
-(19, '2026-01-18', 650.00, 'Tarjetas'), (20, '2026-02-20', 780.00, 'Efectivo'), (1, '2026-03-11', 1200.00, 'Transferencia'),
-(2, '2026-04-15', 95.00, 'Efectivo'), (3, '2026-05-22', 430.00, 'Tarjetas'), (4, '2026-06-05', 1600.00, 'Transferencia'),
-(5, '2026-01-22', 110.00, 'Efectivo'), (6, '2026-02-14', 520.00, 'Tarjetas'), (7, '2026-03-19', 2400.00, 'Transferencia'),
-(8, '2026-04-22', 180.00, 'Efectivo'), (9, '2026-05-09', 610.00, 'Tarjetas'), (10, '2026-06-14', 1350.00, 'Transferencia'),
-(11, '2026-01-29', 920.00, 'Tarjetas'), (12, '2026-02-18', 140.00, 'Efectivo'), (13, '2026-03-25', 700.00, 'Transferencia'),
-(14, '2026-04-11', 310.00, 'Efectivo'), (15, '2026-05-04', 800.00, 'Tarjetas'), (16, '2026-06-29', 2700.00, 'Transferencia'),
-(17, '2026-01-05', 230.00, 'Efectivo'), (18, '2026-02-09', 460.00, 'Tarjetas'), (19, '2026-03-14', 3100.00, 'Transferencia'),
-(20, '2026-04-19', 125.00, 'Efectivo'), (1, '2026-05-21', 590.00, 'Tarjetas'), (2, '2026-06-18', 1800.00, 'Transferencia'),
-(3, '2026-01-13', 320.00, 'Efectivo'), (4, '2026-02-27', 710.00, 'Tarjetas'), (5, '2026-03-08', 4200.00, 'Transferencia'),
-(6, '2026-04-24', 195.00, 'Efectivo'), (7, '2026-05-11', 660.00, 'Tarjetas'), (8, '2026-06-03', 1150.00, 'Transferencia'),
-(9, '2026-01-31', 400.00, 'Efectivo'), (10, '2026-02-19', 820.00, 'Tarjetas');
+-- 84. Registrar 50 ventas distribuidas en diferentes meses y clientes
+INSERT INTO TVenta (nClienteID, dFechaVenta, nMontoTotal, cMetodoPago, nSucursalID) VALUES
+(1, '2026-01-10', 150.00, 'Tarjetas', 1), (2, '2026-01-15', 2500.00, 'Transferencia', 2), (3, '2026-01-20', 99.99, 'Efectivo', 1),
+(4, '2026-02-05', 450.00, 'Tarjetas', 2), (5, '2026-02-12', 1250.00, 'Transferencia', 1), (6, '2026-02-25', 300.00, 'Efectivo', 2),
+(7, '2026-03-02', 850.00, 'Tarjetas', 1), (8, '2026-03-14', 620.00, 'Efectivo', 1), (9, '2026-03-22', 1900.00, 'Transferencia', 2),
+(10, '2026-04-01', 120.00, 'Efectivo', 1), (11, '2026-04-18', 340.00, 'Tarjetas', 2), (12, '2026-04-30', 2100.00, 'Transferencia', 1),
+(13, '2026-05-05', 75.00, 'Efectivo', 1), (14, '2026-05-15', 540.00, 'Tarjetas', 2), (15, '2026-05-28', 3200.00, 'Transferencia', 1),
+(16, '2026-06-02', 410.00, 'Efectivo', 2), (17, '2026-06-11', 890.00, 'Tarjetas', 1), (18, '2026-06-20', 1500.00, 'Transferencia', 2),
+(19, '2026-01-18', 650.00, 'Tarjetas', 1), (20, '2026-02-20', 780.00, 'Efectivo', 1), (1, '2026-03-11', 1200.00, 'Transferencia', 2),
+(2, '2026-04-15', 95.00, 'Efectivo', 1), (3, '2026-05-22', 430.00, 'Tarjetas', 2), (4, '2026-06-05', 1600.00, 'Transferencia', 1),
+(5, '2026-01-22', 110.00, 'Efectivo', 2), (6, '2026-02-14', 520.00, 'Tarjetas', 1), (7, '2026-03-19', 2400.00, 'Transferencia', 1),
+(8, '2026-04-22', 180.00, 'Efectivo', 2), (9, '2026-05-09', 610.00, 'Tarjetas', 1), (10, '2026-06-14', 1350.00, 'Transferencia', 2),
+(11, '2026-01-29', 920.00, 'Tarjetas', 1), (12, '2026-02-18', 140.00, 'Efectivo', 1), (13, '2026-03-25', 700.00, 'Transferencia', 2),
+(14, '2026-04-11', 310.00, 'Efectivo', 1), (15, '2026-05-04', 800.00, 'Tarjetas', 2), (16, '2026-06-29', 2700.00, 'Transferencia', 1),
+(17, '2026-01-05', 230.00, 'Efectivo', 2), (18, '2026-02-09', 460.00, 'Tarjetas', 1), (19, '2026-03-14', 3100.00, 'Transferencia', 1),
+(20, '2026-04-19', 125.00, 'Efectivo', 2), (1, '2026-05-21', 590.00, 'Tarjetas', 1), (2, '2026-06-18', 1800.00, 'Transferencia', 2),
+(3, '2026-01-13', 320.00, 'Efectivo', 1), (4, '2026-02-27', 710.00, 'Tarjetas', 1), (5, '2026-03-08', 4200.00, 'Transferencia', 2),
+(6, '2026-04-24', 195.00, 'Efectivo', 1), (7, '2026-05-11', 660.00, 'Tarjetas', 2), (8, '2026-06-03', 1150.00, 'Transferencia', 1),
+(9, '2026-01-31', 400.00, 'Efectivo', 2), (10, '2026-02-19', 820.00, 'Tarjetas', 1);
 
--- Actualizar precios o montos de ventas según una condición
--- Ejemplo: Aplicar un recargo del 5% a todas las ventas que se pagaron con 'Tarjetas'
+-- 85. Actualizar precios o montos de ventas según una condición
+-- Aplicar un recargo del 5% a todas las ventas abonadas mediante 'Tarjetas'
 UPDATE TVenta
 SET nMontoTotal = nMontoTotal * 1.05
 WHERE cMetodoPago = 'Tarjetas';
 
--- Eliminar clientes sin ventas
+-- 86. Eliminar clientes sin ventas
 DELETE FROM TCliente
 WHERE nClienteID NOT IN (SELECT DISTINCT nClienteID FROM TVenta WHERE nClienteID IS NOT NULL);
 
--- Consultar los 5 clientes con mayores compras (Monto total acumulado)
+-- 87. Consultar los 5 clientes con mayores compras (Monto total acumulado)
 SELECT TOP 5 c.nClienteID, c.cNombre, c.cApellido, SUM(v.nMontoTotal) AS TotalComprado
 FROM TCliente c
 JOIN TVenta v ON c.nClienteID = v.nClienteID
 GROUP BY c.nClienteID, c.cNombre, c.cApellido
 ORDER BY TotalComprado DESC;
 
--- Consultar ventas por mes (Agrupadas por Año y Mes del periodo actual)
+-- 88. Consultar ventas por mes (Agrupadas por Año y Mes)
 SELECT YEAR(dFechaVenta) AS Anio, MONTH(dFechaVenta) AS Mes, COUNT(nVentaID) AS TotalVentas, SUM(nMontoTotal) AS FacturacionMensual
 FROM TVenta
 GROUP BY YEAR(dFechaVenta), MONTH(dFechaVenta)
 ORDER BY Anio, Mes;
 
--- Consultar promedio de ventas por cliente
+-- 89. Consultar promedio de ventas por cliente
 SELECT c.nClienteID, c.cNombre, c.cApellido, AVG(v.nMontoTotal) AS PromedioPorCompra
 FROM TCliente c
 JOIN TVenta v ON c.nClienteID = v.nClienteID
 GROUP BY c.nClienteID, c.cNombre, c.cApellido
 ORDER BY PromedioPorCompra DESC;
 
--- Generar un reporte consolidado utilizando JOIN entre tres tablas
--- Para este reporte uniremos las nuevas tablas TCliente y TVenta con la tabla TCargo o TDepartamento de las partes anteriores del script (Asumiendo un ecosistema unificado donde los empleados también pueden ser clientes o cruzando lógicas similares).
--- En caso de ejecutar esta sección limpia, simularemos el JOIN de 3 tablas usando la jerarquía estructural interna de Ventas y Clientes:
-SELECT v.nVentaID, c.cNombre + ' ' + c.cApellido AS NombreCliente, v.dFechaVenta, v.nMontoTotal, v.cMetodoPago
+-- 90. Generar un reporte consolidado utilizando JOIN entre tres tablas (TVenta, TCliente, TSucursalVenta)
+SELECT v.nVentaID, c.cNombre + ' ' + c.cApellido AS NombreCliente, s.cNombreSucursal, v.dFechaVenta, v.nMontoTotal, v.cMetodoPago
 FROM TVenta v
 JOIN TCliente c ON v.nClienteID = c.nClienteID
-JOIN sys.databases d ON d.name = 'EmpresaSQL';
+JOIN TSucursalVenta s ON v.nSucursalID = s.nSucursalID;
+GO
