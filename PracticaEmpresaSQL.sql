@@ -496,3 +496,16 @@ GO
 -- Eliminar la base de datos EmpresaSQL
 -- Esta parte se cumple al inicio del script
 
+/* Desafios adicionales:
+Desafíos Adicionales
+81. Crear una tabla TCliente con al menos 8 campos y restricciones.
+82. Crear una tabla TVenta relacionada con TCliente.
+83. Registrar 20 clientes.
+84. Registrar 50 ventas.
+85. Actualizar precios o montos de ventas según una condición.
+86. Eliminar clientes sin ventas.
+87. Consultar los 5 clientes con mayores compras.
+88. Consultar ventas por mes.
+89. Consultar promedio de ventas por cliente.
+90. Generar un reporte consolidado utilizando JOIN entre tres tablas.*/
+
