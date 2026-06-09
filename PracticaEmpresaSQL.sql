@@ -239,3 +239,41 @@ Esto garantiza la integridad de los datos y evita que se ingresen valores no vá
 47. Actualizar la fecha de finalización de un proyecto.
 48. Asignar un nuevo proyecto a un empleado.
 */ 
+
+-- Incrementar en 10% el salario de todos los empleados
+UPDATE TEmpleado
+SET nSalario = nSalario * 1.10;
+
+-- Incrementar en 20% el salario de los empleados de un departamento específico (Ejemplo: Departamento ID 1)
+UPDATE TEmpleado
+SET nSalario = nSalario * 1.20
+WHERE nDepartamentoID = 1;
+
+-- Actualizar el correo electrónico de un empleado (Ejemplo: Empleado ID 2)
+UPDATE TEmpleado
+SET cEmail = 'MaG@empresa.com'
+WHERE nEmpleadoID = 2;
+
+-- Modificar el cargo de un empleado (Ejemplo: Empleado ID 3, nuevo Cargo ID 4)
+UPDATE TEmpleado
+SET nCargoID = 4
+WHERE nEmpleadoID = 3;
+
+-- Cambiar el departamento de dos empleados (Ejemplo: Empleado ID 4 y 5, nuevo Departamento ID 2)
+UPDATE TEmpleado
+SET nDepartamentoID = 2
+WHERE nEmpleadoID IN (4, 5);
+
+-- Marcar como inactivos a los empleados con salario inferior a 500
+UPDATE TEmpleado
+SET bActivo = 0
+WHERE nSalario < 500;
+
+-- Actualizar la fecha de finalización de un proyecto (Ejemplo: Proyecto ID 1)
+UPDATE TProyecto
+SET dFechaFin = '2024-12-31'
+WHERE nProyectoID = 1;
+
+-- Asignar un nuevo proyecto a un empleado (Ejemplo: Empleado ID 6, Proyecto ID 2)
+INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
+(6, 2);
