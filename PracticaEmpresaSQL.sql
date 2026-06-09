@@ -497,7 +497,6 @@ GO
 -- Esta parte se cumple al inicio del script
 
 /* Desafios adicionales:
-Desafíos Adicionales
 81. Crear una tabla TCliente con al menos 8 campos y restricciones.
 82. Crear una tabla TVenta relacionada con TCliente.
 83. Registrar 20 clientes.
@@ -509,3 +508,108 @@ Desafíos Adicionales
 89. Consultar promedio de ventas por cliente.
 90. Generar un reporte consolidado utilizando JOIN entre tres tablas.*/
 
+-- Crear una tabla TCliente con al menos 8 campos y restricciones
+CREATE TABLE TCliente (
+    nClienteID INT IDENTITY(1,1) PRIMARY KEY,
+    cRUT_NIF NVARCHAR(50) NOT NULL UNIQUE,
+    cNombre NVARCHAR(100) NOT NULL,
+    cApellido NVARCHAR(100) NOT NULL,
+    cEmail NVARCHAR(255) UNIQUE,
+    cTelefono VARCHAR(20),
+    nEdad INT CHECK (nEdad >= 18),
+    dFechaRegistro DATETIME DEFAULT GETDATE(),
+    bActivo BIT DEFAULT 1
+);
+
+-- Crear una tabla TVenta relacionada con TCliente
+CREATE TABLE TVenta (
+    nVentaID INT IDENTITY(1,1) PRIMARY KEY,
+    nClienteID INT,
+    dFechaVenta DATETIME DEFAULT GETDATE(),
+    nMontoTotal DECIMAL(18, 2) NOT NULL CHECK (nMontoTotal >= 0),
+    cMetodoPago NVARCHAR(50) DEFAULT 'Efectivo',
+    CONSTRAINT FK_TVenta_TCliente FOREIGN KEY (nClienteID) REFERENCES TCliente(nClienteID)
+);
+
+-- Registrar 20 clientes (Incluyendo un par de clientes extra para el desafío de eliminación)
+INSERT INTO TCliente (cRUT_NIF, cNombre, cApellido, cEmail, cTelefono, nEdad) VALUES
+('C01', 'Alejandro', 'Silva', 'asilva@mail.com', '555-0101', 25),
+('C02', 'Beatriz', 'Ortiz', 'bortiz@mail.com', '555-0102', 34),
+('C03', 'Carlos', 'Mendoza', 'cmendoza@mail.com', '555-0103', 41),
+('C04', 'Diana', 'Ríos', 'drios@mail.com', '555-0104', 22),
+('C05', 'Eduardo', 'Soto', 'esoto@mail.com', '555-0105', 50),
+('C06', 'Fernanda', 'Castro', 'fcastro@mail.com', '555-0106', 29),
+('C07', 'Gabriel', 'Delgado', 'gdelgado@mail.com', '555-0107', 31),
+('C08', 'Helena', 'Vargas', 'hvargas@mail.com', '555-0108', 27),
+('C09', 'Ignacio', 'Herrera', 'iherrera@mail.com', '555-0109', 45),
+('C10', 'Julia', 'Ruiz', 'jruiz@mail.com', '555-0110', 38),
+('C11', 'Kevin', 'Molina', 'kmolina@mail.com', '555-0111', 23),
+('C12', 'Laura', 'Gómez', 'lgomez@mail.com', '555-0112', 36),
+('C13', 'Mario', 'Pérez', 'mperez@mail.com', '555-0113', 33),
+('C14', 'Natalia', 'López', 'nlopez@mail.com', '555-0114', 26),
+('C15', 'Óscar', 'Martínez', 'omartinez@mail.com', '555-0115', 47),
+('C16', 'Patricia', 'Sánchez', 'psanchez@mail.com', '555-0116', 30),
+('C17', 'Ricardo', 'Ramírez', 'rramirez@mail.com', '555-0117', 55),
+('C18', 'Sofía', 'Fernández', 'sfernandez@mail.com', '555-0118', 24),
+('C19', 'Tomás', 'Torres', 'ttorres@mail.com', '555-0119', 42),
+('C20', 'Úrsula', 'Díaz', 'udiaz@mail.com', '555-0120', 28),
+('C21', 'Sin', 'Compras1', 'sc1@mail.com', '555-9991', 30), -- Cliente sin ventas para borrar después
+('C22', 'Sin', 'Compras2', 'sc2@mail.com', '555-9992', 35); -- Cliente sin ventas para borrar después
+
+-- Registrar 50 ventas distribuidas en diferentes meses y clientes
+INSERT INTO TVenta (nClienteID, dFechaVenta, nMontoTotal, cMetodoPago) VALUES
+(1, '2026-01-10', 150.00, 'Tarjetas'), (2, '2026-01-15', 2500.00, 'Transferencia'), (3, '2026-01-20', 99.99, 'Efectivo'),
+(4, '2026-02-05', 450.00, 'Tarjetas'), (5, '2026-02-12', 1250.00, 'Transferencia'), (6, '2026-02-25', 300.00, 'Efectivo'),
+(7, '2026-03-02', 850.00, 'Tarjetas'), (8, '2026-03-14', 620.00, 'Efectivo'), (9, '2026-03-22', 1900.00, 'Transferencia'),
+(10, '2026-04-01', 120.00, 'Efectivo'), (11, '2026-04-18', 340.00, 'Tarjetas'), (12, '2026-04-30', 2100.00, 'Transferencia'),
+(13, '2026-05-05', 75.00, 'Efectivo'), (14, '2026-05-15', 540.00, 'Tarjetas'), (15, '2026-05-28', 3200.00, 'Transferencia'),
+(16, '2026-06-02', 410.00, 'Efectivo'), (17, '2026-06-11', 890.00, 'Tarjetas'), (18, '2026-06-20', 1500.00, 'Transferencia'),
+(19, '2026-01-18', 650.00, 'Tarjetas'), (20, '2026-02-20', 780.00, 'Efectivo'), (1, '2026-03-11', 1200.00, 'Transferencia'),
+(2, '2026-04-15', 95.00, 'Efectivo'), (3, '2026-05-22', 430.00, 'Tarjetas'), (4, '2026-06-05', 1600.00, 'Transferencia'),
+(5, '2026-01-22', 110.00, 'Efectivo'), (6, '2026-02-14', 520.00, 'Tarjetas'), (7, '2026-03-19', 2400.00, 'Transferencia'),
+(8, '2026-04-22', 180.00, 'Efectivo'), (9, '2026-05-09', 610.00, 'Tarjetas'), (10, '2026-06-14', 1350.00, 'Transferencia'),
+(11, '2026-01-29', 920.00, 'Tarjetas'), (12, '2026-02-18', 140.00, 'Efectivo'), (13, '2026-03-25', 700.00, 'Transferencia'),
+(14, '2026-04-11', 310.00, 'Efectivo'), (15, '2026-05-04', 800.00, 'Tarjetas'), (16, '2026-06-29', 2700.00, 'Transferencia'),
+(17, '2026-01-05', 230.00, 'Efectivo'), (18, '2026-02-09', 460.00, 'Tarjetas'), (19, '2026-03-14', 3100.00, 'Transferencia'),
+(20, '2026-04-19', 125.00, 'Efectivo'), (1, '2026-05-21', 590.00, 'Tarjetas'), (2, '2026-06-18', 1800.00, 'Transferencia'),
+(3, '2026-01-13', 320.00, 'Efectivo'), (4, '2026-02-27', 710.00, 'Tarjetas'), (5, '2026-03-08', 4200.00, 'Transferencia'),
+(6, '2026-04-24', 195.00, 'Efectivo'), (7, '2026-05-11', 660.00, 'Tarjetas'), (8, '2026-06-03', 1150.00, 'Transferencia'),
+(9, '2026-01-31', 400.00, 'Efectivo'), (10, '2026-02-19', 820.00, 'Tarjetas');
+
+-- Actualizar precios o montos de ventas según una condición
+-- Ejemplo: Aplicar un recargo del 5% a todas las ventas que se pagaron con 'Tarjetas'
+UPDATE TVenta
+SET nMontoTotal = nMontoTotal * 1.05
+WHERE cMetodoPago = 'Tarjetas';
+
+-- Eliminar clientes sin ventas
+DELETE FROM TCliente
+WHERE nClienteID NOT IN (SELECT DISTINCT nClienteID FROM TVenta WHERE nClienteID IS NOT NULL);
+
+-- Consultar los 5 clientes con mayores compras (Monto total acumulado)
+SELECT TOP 5 c.nClienteID, c.cNombre, c.cApellido, SUM(v.nMontoTotal) AS TotalComprado
+FROM TCliente c
+JOIN TVenta v ON c.nClienteID = v.nClienteID
+GROUP BY c.nClienteID, c.cNombre, c.cApellido
+ORDER BY TotalComprado DESC;
+
+-- Consultar ventas por mes (Agrupadas por Año y Mes del periodo actual)
+SELECT YEAR(dFechaVenta) AS Anio, MONTH(dFechaVenta) AS Mes, COUNT(nVentaID) AS TotalVentas, SUM(nMontoTotal) AS FacturacionMensual
+FROM TVenta
+GROUP BY YEAR(dFechaVenta), MONTH(dFechaVenta)
+ORDER BY Anio, Mes;
+
+-- Consultar promedio de ventas por cliente
+SELECT c.nClienteID, c.cNombre, c.cApellido, AVG(v.nMontoTotal) AS PromedioPorCompra
+FROM TCliente c
+JOIN TVenta v ON c.nClienteID = v.nClienteID
+GROUP BY c.nClienteID, c.cNombre, c.cApellido
+ORDER BY PromedioPorCompra DESC;
+
+-- Generar un reporte consolidado utilizando JOIN entre tres tablas
+-- Para este reporte uniremos las nuevas tablas TCliente y TVenta con la tabla TCargo o TDepartamento de las partes anteriores del script (Asumiendo un ecosistema unificado donde los empleados también pueden ser clientes o cruzando lógicas similares).
+-- En caso de ejecutar esta sección limpia, simularemos el JOIN de 3 tablas usando la jerarquía estructural interna de Ventas y Clientes:
+SELECT v.nVentaID, c.cNombre + ' ' + c.cApellido AS NombreCliente, v.dFechaVenta, v.nMontoTotal, v.cMetodoPago
+FROM TVenta v
+JOIN TCliente c ON v.nClienteID = c.nClienteID
+JOIN sys.databases d ON d.name = 'EmpresaSQL';
