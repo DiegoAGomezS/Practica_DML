@@ -45,3 +45,45 @@ go
 use EmpresaSQL
 go
 
+-- Creación de tabla TDepartamento
+CREATE TABLE TDepartamento (
+    nDepartamentoID INT IDENTITY(1,1) PRIMARY KEY,
+    cNombreDepartamento NVARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Creación de tabla TCargo
+CREATE TABLE TCargo (
+    nCargoID INT IDENTITY(1,1) PRIMARY KEY,
+    cNombreCargo NVARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Creación de tabla TEmpleado
+CREATE TABLE TEmpleado (
+    nEmpleadoID INT IDENTITY(1,1) PRIMARY KEY,
+    cNIF NVARCHAR(255) UNIQUE,
+    cNombre NVARCHAR(255),
+    cApellido NVARCHAR(255),
+    nDepartamentoID INT,
+    nCargoID INT,
+    dFechaContratacion DATE DEFAULT GETDATE(),
+    nSalario DECIMAL(18, 2) CHECK (nSalario > 300),
+    FOREIGN KEY (nDepartamentoID) REFERENCES TDepartamento(nDepartamentoID),
+    FOREIGN KEY (nCargoID) REFERENCES TCargo(nCargoID)
+);
+
+-- Creación de tabla TProyecto
+CREATE TABLE TProyecto (
+    nProyectoID INT IDENTITY(1,1) PRIMARY KEY,
+    cNombreProyecto NVARCHAR(255) NOT NULL,
+    dFechaInicio DATE NOT NULL,
+    dFechaFin DATE
+);
+
+-- Creación de tabla intermedia TEmpleadoProyecto
+CREATE TABLE TEmpleadoProyecto (
+    nEmpleadoID INT,
+    nProyectoID INT,
+    PRIMARY KEY (nEmpleadoID, nProyectoID),
+    FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
+    FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
+);
