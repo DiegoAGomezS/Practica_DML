@@ -87,3 +87,23 @@ CREATE TABLE TEmpleadoProyecto (
     FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
     FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
 );
+
+/* 
+Parte II. Modificación de Estructuras (ALTER)
+16. Agregar columna cEmail a TEmpleado.
+17. Agregar columna cTelefono.
+18. Modificar longitud de cNombre a 100 caracteres.
+19. Modificar longitud de cApellido a 100 caracteres.
+20. Agregar columna cDireccion.
+21. Agregar columna nEdad.
+22. Crear restricción CHECK para edades entre 18 y 65 años.
+23. Agregar restricción UNIQUE al correo electrónico.
+24. Agregar columna bActivo tipo BIT con valor por defecto 1.
+25. Eliminar la columna cDireccion.
+26. Cambiar el tipo de dato de teléfono a VARCHAR(20).
+27. Agregar columna cGenero.
+28. Agregar restricción CHECK para que el género solo permita M o F.
+29. Agregar columna dFechaNacimiento.
+30. Crear una nueva tabla llamada TSucursal.
+
+*/
