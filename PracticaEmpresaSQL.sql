@@ -152,3 +152,79 @@ CREATE TABLE TSucursal (
 39. Insertar registros usando múltiples VALUES.
 40. Intentar insertar un salario negativo y analizar el error.*/
 
+-- Insertar 5 departamentos diferentes
+INSERT INTO TDepartamento (cNombreDepartamento) VALUES
+('Recursos Humanos'),
+('Tecnología'),
+('Ventas'),
+('Marketing'),
+('Finanzas');
+
+-- Insertar 5 cargos diferentes
+INSERT INTO TCargo (cNombreCargo) VALUES
+('Gerente'),
+('Analista'),
+('Desarrollador'),
+('Vendedor'),
+('Asistente');
+
+-- Insertar 10 empleados (Tomando en cuanta las alteraciones y restriciones realizadas)
+-- Formato de cEmail: "primera letra del nombre" + "apellido" + "@empresa.com"
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero, dFechaNacimiento) VALUES
+('12345678A', 'Juan', 'Pérez', 1, 1, 5000, 'JP@empresa.com', '123456789', 30, 'M', '1994-01-01'),
+('23456789B', 'María', 'Gómez', 2, 2, 4000, 'MG@empresa.com', '987654321', 28, 'F', '1996-02-02'),
+('34567890C', 'Carlos', 'López', 3, 3, 3500, 'CL@empresa.com', '555555555', 35, 'M', '1989-03-03'),
+('45678901D', 'Ana', 'Martínez', 4, 4, 4500, 'AM@empresa.com', '444444444', 32, 'F', '1991-04-04'),
+('56789012E', 'Luis', 'Sánchez', 5, 5, 3000, 'LS@empresa.com', '333333333', 40, 'M', '1983-05-05'),
+('67890123F', 'Sofía', 'García', 1, 2, 3200, 'SG@empresa.com', '222222222', 27, 'F', '1997-06-06'),
+('78901234G', 'Miguel', 'Rodríguez', 2, 3, 3700, 'MR@empresa.com', '111111111', 29, 'M', '1995-07-07'),
+('89012345H', 'Laura', 'Fernández', 3, 4, 4200, 'LF@empresa.com', '666666666', 31, 'F', '1993-08-08'),
+('90123456I', 'David', 'Gómez', 4, 5, 3100, 'DG@empresa.com', '777777777', 33, 'M', '1991-09-09'),
+('01234567J', 'Elena', 'Díaz', 5, 1, 4800, 'ED@empresa.com', '888888888', 26, 'F', '1998-10-10');
+
+-- Insertar 3 proyectos
+INSERT INTO TProyecto (cNombreProyecto, dFechaInicio, dFechaFin) VALUES
+('Proyecto Alpha', '2024-01-01', '2024-06-30'),
+('Proyecto Beta', '2024-02-01', '2024-07-31'),
+('Proyecto Gamma', '2024-03-01', '2024-08-31');
+
+-- Asignar empleados a proyectos
+INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
+(1, 1),
+(2, 1),
+(3, 2),
+(4, 2),
+(5, 3),
+(6, 3),
+(7, 1),
+(8, 2),
+(9, 3),
+(10, 1);
+
+-- Insertar un empleado utilizando el valor por defecto de fecha
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+('11223344K', 'Sergio', 'Molina', 1, 1, 5500, 'SM@empresa.com', '999999999', 34, 'M');
+
+-- Insertar un empleado con correo electrónico
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+('22334455L', 'Lucía', 'Vargas', 2, 2, 4500, 'LV@empresa.com', '888888888', 29, 'F');
+
+-- Insertar un empleado sin indicar estado activo
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+('33445566M', 'Andrés', 'Ruiz', 3, 3, 3800, 'AR@empresa.com', '777777777', 31, 'M');
+
+-- Insertar registros usando múltiples VALUES
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+('44556677N', 'Marta', 'Soto', 4, 4, 4300, 'MS@@empresa.com', '666666666', 28, 'F'),
+('55667788O', 'Javier', 'Castro', 5, 5, 3200, 'JC@empresa.com', '555555555', 36, 'M');
+
+-- Intentar insertar un salario negativo y analizar el error
+INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+('66778899P', 'Sonia', 'Méndez', 1, 1, -5000, 'SM@empresa.com', '444444444', 30, 'F');
+
+/* Analisis del error:
+Al intentar insertar un salario negativo, se produce un error debido a la restricción CHECK que se estableció en la columna nSalario de la tabla TEmpleado. 
+La restricción CHECK especifica que el valor del salario debe ser mayor que 300, por lo que al intentar insertar un valor negativo, se viola esta restricción 
+y el sistema de gestión de bases de datos (DBMS) genera un error indicando que la inserción no cumple con las condiciones establecidas para esa columna. 
+Esto garantiza la integridad de los datos y evita que se ingresen valores no válidos en la base de datos.
+*/
