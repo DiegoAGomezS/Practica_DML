@@ -111,9 +111,9 @@ Parte II. Modificación de Estructuras (ALTER)
 
 -- Columnas agregadas a la tabla TEmpleado
 ALTER Table TEmpleado
-ADD cEmail nvarchar(255) UNIQUE,
-    cTelefono nvarchar(255),
-    cDireccion nvarchar(255),
+ADD cEmail varchar(255) UNIQUE,
+    cTelefono varchar(255),
+    cDireccion varchar(255),
     nEdad INT CHECK (nEdad >= 18 AND nEdad <= 65),
     bActivo BIT DEFAULT 1,
     cGenero CHAR(1) CHECK (cGenero IN ('M', 'F')),
@@ -139,3 +139,16 @@ CREATE TABLE TSucursal (
     cNombreSucursal NVARCHAR(255) NOT NULL UNIQUE,
     cDireccionSucursal NVARCHAR(255) NOT NULL
 );
+
+/* Parte III. Inserción de Datos (INSERT)
+31. Insertar 5 departamentos diferentes.
+32. Insertar 5 cargos diferentes.
+33. Insertar 10 empleados.
+34. Insertar 3 proyectos.
+35. Asignar empleados a proyectos.
+36. Insertar un empleado utilizando el valor por defecto de fecha.
+37. Insertar un empleado con correo electrónico.
+38. Insertar un empleado sin indicar estado activo.
+39. Insertar registros usando múltiples VALUES.
+40. Intentar insertar un salario negativo y analizar el error.*/
+
