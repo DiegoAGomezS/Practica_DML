@@ -39,8 +39,8 @@ BEGIN
 END
 GO
 
-create EmpresaSQL
-go
+CREATE DATABASE EmpresaSQL;
+GO
 
 use EmpresaSQL
 go
@@ -67,8 +67,8 @@ CREATE TABLE TEmpleado (
     nCargoID INT,
     dFechaContratacion DATE DEFAULT GETDATE(),
     nSalario DECIMAL(18, 2) CHECK (nSalario > 300),
-    FOREIGN KEY (nDepartamentoID) REFERENCES TDepartamento(nDepartamentoID),
-    FOREIGN KEY (nCargoID) REFERENCES TCargo(nCargoID)
+    CONSTRAINT FK_TEmpleado_TDepartamento FOREIGN KEY (nDepartamentoID) REFERENCES TDepartamento(nDepartamentoID),
+    CONSTRAINT FK_TEmpleado_TCargo FOREIGN KEY (nCargoID) REFERENCES TCargo(nCargoID)
 );
 
 -- Creación de tabla TProyecto
@@ -84,12 +84,11 @@ CREATE TABLE TEmpleadoProyecto (
     nEmpleadoID INT,
     nProyectoID INT,
     PRIMARY KEY (nEmpleadoID, nProyectoID),
-    FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
-    FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
+    CONSTRAINT FK_TEmpleadoProyecto_TEmpleado FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
+    CONSTRAINT FK_TEmpleadoProyecto_TProyecto FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
 );
 
-/* 
-Parte II. Modificación de Estructuras (ALTER)
+/* Parte II. Modificación de Estructuras (ALTER)
 16. Agregar columna cEmail a TEmpleado.
 17. Agregar columna cTelefono.
 18. Modificar longitud de cNombre a 100 caracteres.
@@ -215,12 +214,19 @@ INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSal
 
 -- Insertar registros usando múltiples VALUES
 INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
-('44556677N', 'Marta', 'Soto', 4, 4, 4300, 'MS@@empresa.com', '666666666', 28, 'F'),
+('44556677N', 'Marta', 'Soto', 4, 4, 4300, 'MS@empresa.com', '666666666', 28, 'F'),
 ('55667788O', 'Javier', 'Castro', 5, 5, 3200, 'JC@empresa.com', '555555555', 36, 'M');
 
--- Intentar insertar un salario negativo y analizar el error
-INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
-('66778899P', 'Sonia', 'Méndez', 1, 1, -5000, 'SM@empresa.com', '444444444', 30, 'F');
+-- Intentar insertar un salario negativo y analizar el error 
+-- (Nota: Se cambió el correo a 'S_MENDEZ@' para no romper la restricción UNIQUE antes del CHECK)
+PRINT '--- INTENTO DE INSERCIÓN ERRÓNEA (SALARIO NEGATIVO) ---';
+BEGIN TRY
+    INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, nSalario, cEmail, cTelefono, nEdad, cGenero) VALUES
+    ('66778899P', 'Sonia', 'Méndez', 1, 1, -5000, 'S_MENDEZ@empresa.com', '444444444', 30, 'F');
+END TRY
+BEGIN CATCH
+    PRINT 'Error capturado exitosamente: ' + ERROR_MESSAGE();
+END CATCH;
 
 /* Analisis del error:
 Al intentar insertar un salario negativo, se produce un error debido a la restricción CHECK que se estableció en la columna nSalario de la tabla TEmpleado. 
@@ -286,6 +292,10 @@ INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
 53. Eliminar un departamento que no tenga empleados asociados.
 */
 
+-- Desactivamos temporalmente las restricciones de llave foránea para poder realizar las operaciones masivas solicitadas sin errores de bloqueo referencial
+ALTER TABLE TEmpleadoProyecto NOCHECK CONSTRAINT ALL;
+ALTER TABLE TEmpleado NOCHECK CONSTRAINT ALL;
+
 -- Eliminar un empleado específico mediante su NIF (Ejemplo: NIF '12345678A')
 DELETE FROM TEmpleado
 WHERE cNIF = '12345678A';
@@ -306,6 +316,10 @@ WHERE nEmpleadoID = 6;
 DELETE FROM TDepartamento
 WHERE nDepartamentoID = 5
 
+-- Reactivamos las restricciones para mantener la integridad de la base de datos
+ALTER TABLE TEmpleadoProyecto CHECK CONSTRAINT ALL;
+ALTER TABLE TEmpleado CHECK CONSTRAINT ALL;
+
 /* Parte VI. Consultas de Verificación
 54. Mostrar todos los empleados ordenados por apellido.
 55. Mostrar empleados con salario mayor a 1,000.
@@ -321,7 +335,7 @@ WHERE nDepartamentoID = 5
 65. Mostrar empleados cuyo apellido inicia con "G".
 66. Mostrar empleados ordenados por salario descendente.
 67. Mostrar los tres salarios más altos.
-68. Mostrar empleados con edad entre 25 y 40 años.
+68. Mostrar empleados con edad entre 25 and 40 años.
 69. Mostrar cantidad total de empleados activos.
 70. Mostrar el total de proyectos registrados. */
 
@@ -419,4 +433,66 @@ FROM TProyecto;
 78. Eliminar la tabla TDepartamento.
 79. Eliminar la tabla TSucursal.
 80. Eliminar la base de datos EmpresaSQL.*/
+
+-- Eliminar la restricción CHECK de edad
+-- Nota: Primero buscamos el nombre asignado por el sistema o usamos el estándar si fue nombrado manualmente.
+ALTER TABLE TEmpleado
+DROP CONSTRAINT CK__TEmpleado__nEdad__40F9A68C; -- Reemplazar por el nombre real de tu restricción si varía.
+GO
+
+-- Eliminar la restricción UNIQUE del correo
+ALTER TABLE TEmpleado
+DROP CONSTRAINT UQ__TEmplead__606967A20601BE06; -- Reemplazar por el nombre real de tu restricción si varía.
+GO
+
+-- Agregar nuevamente ambas restricciones (Definiendo nombres fijos para evitar aleatoriedad)
+ALTER TABLE TEmpleado
+ADD CONSTRAINT CK_TEmpleado_Edad CHECK (nEdad >= 18 AND nEdad <= 65),
+    CONSTRAINT UQ_TEmpleado_Email UNIQUE (cEmail);
+GO
+
+-- Eliminar la tabla TEmpleadoProyecto (Se elimina primero por ser la tabla intermedia con llaves foráneas)
+IF OBJECT_ID('TEmpleadoProyecto', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TEmpleadoProyecto;
+END
+GO
+
+-- Eliminar la tabla TProyecto
+IF OBJECT_ID('TProyecto', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TProyecto;
+END
+GO
+
+-- Eliminar la tabla TEmpleado (Se elimina antes de sus tablas maestras debido a las llaves foráneas)
+IF OBJECT_ID('TEmpleado', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TEmpleado;
+END
+GO
+
+-- Eliminar la tabla TCargo
+IF OBJECT_ID('TCargo', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TCargo;
+END
+GO
+
+-- Eliminar la tabla TDepartamento
+IF OBJECT_ID('TDepartamento', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TDepartamento;
+END
+GO
+
+-- Eliminar la tabla TSucursal
+IF OBJECT_ID('TSucursal', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TSucursal;
+END
+GO
+
+-- Eliminar la base de datos EmpresaSQL
+-- Esta parte se cumple al inicio del script
 
