@@ -277,3 +277,11 @@ WHERE nProyectoID = 1;
 -- Asignar un nuevo proyecto a un empleado (Ejemplo: Empleado ID 6, Proyecto ID 2)
 INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
 (6, 2);
+
+/* Parte V. Eliminación de Datos (DELETE)
+49. Eliminar un empleado específico mediante su NIF.
+50. Eliminar todos los empleados inactivos.
+51. Eliminar un proyecto específico.
+52. Eliminar las asignaciones de un empleado en la tabla TEmpleadoProyecto.
+53. Eliminar un departamento que no tenga empleados asociados.
+*/
