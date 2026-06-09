@@ -228,3 +228,14 @@ La restricción CHECK especifica que el valor del salario debe ser mayor que 300
 y el sistema de gestión de bases de datos (DBMS) genera un error indicando que la inserción no cumple con las condiciones establecidas para esa columna. 
 Esto garantiza la integridad de los datos y evita que se ingresen valores no válidos en la base de datos.
 */
+
+/*Parte IV. Actualización de Datos (UPDATE)
+41. Incrementar en 10% el salario de todos los empleados.
+42. Incrementar en 20% el salario de los empleados de un departamento específico.
+43. Actualizar el correo electrónico de un empleado.
+44. Modificar el cargo de un empleado.
+45. Cambiar el departamento de dos empleados.
+46. Marcar como inactivos a los empleados con salario inferior a 500.
+47. Actualizar la fecha de finalización de un proyecto.
+48. Asignar un nuevo proyecto a un empleado.
+*/ 
