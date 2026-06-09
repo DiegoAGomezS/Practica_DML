@@ -305,3 +305,23 @@ WHERE nEmpleadoID = 6;
 -- Eliminar un departamento que no tenga empleados asociados (Ejemplo: Departamento ID 5)
 DELETE FROM TDepartamento
 WHERE nDepartamentoID = 5
+
+/* Parte VI. Consultas de Verificación
+54. Mostrar todos los empleados ordenados por apellido.
+55. Mostrar empleados con salario mayor a 1,000.
+56. Mostrar empleados activos.
+57. Mostrar empleados contratados durante el año actual.
+58. Mostrar empleados y el nombre de su departamento.
+59. Mostrar empleados y el nombre de su cargo.
+60. Mostrar empleados asignados a proyectos.
+61. Mostrar cantidad de empleados por departamento.
+62. Mostrar salario promedio por departamento.
+63. Mostrar salario máximo y mínimo por departamento.
+64. Mostrar los proyectos con más de dos empleados asignados.
+65. Mostrar empleados cuyo apellido inicia con "G".
+66. Mostrar empleados ordenados por salario descendente.
+67. Mostrar los tres salarios más altos.
+68. Mostrar empleados con edad entre 25 y 40 años.
+69. Mostrar cantidad total de empleados activos.
+70. Mostrar el total de proyectos registrados. */
+
