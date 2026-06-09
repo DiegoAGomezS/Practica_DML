@@ -27,3 +27,21 @@ nSalario
 14. Agregar fecha de finalización.
 15. Crear tabla intermedia TEmpleadoProyecto para relación muchos a muchos.
 */
+
+-- Creación de la base de datos y tablas
+use master
+go
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'EmpresaSQL')
+BEGIN
+    ALTER DATABASE EmpresaSQL SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE EmpresaSQL;
+END
+GO
+
+create EmpresaSQL
+go
+
+use EmpresaSQL
+go
+
