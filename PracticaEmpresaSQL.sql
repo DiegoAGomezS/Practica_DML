@@ -285,3 +285,23 @@ INSERT INTO TEmpleadoProyecto (nEmpleadoID, nProyectoID) VALUES
 52. Eliminar las asignaciones de un empleado en la tabla TEmpleadoProyecto.
 53. Eliminar un departamento que no tenga empleados asociados.
 */
+
+-- Eliminar un empleado específico mediante su NIF (Ejemplo: NIF '12345678A')
+DELETE FROM TEmpleado
+WHERE cNIF = '12345678A';
+
+-- Eliminar todos los empleados inactivos
+DELETE FROM TEmpleado
+WHERE bActivo = 0;
+
+-- Eliminar un proyecto específico (Ejemplo: Proyecto ID 3)
+DELETE FROM TProyecto
+WHERE nProyectoID = 3;
+
+-- Eliminar las asignaciones de un empleado en la tabla TEmpleadoProyecto (Ejemplo: Empleado ID 6)
+DELETE FROM TEmpleadoProyecto
+WHERE nEmpleadoID = 6;
+
+-- Eliminar un departamento que no tenga empleados asociados (Ejemplo: Departamento ID 5)
+DELETE FROM TDepartamento
+WHERE nDepartamentoID = 5
