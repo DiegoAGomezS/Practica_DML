@@ -105,5 +105,37 @@ Parte II. Modificación de Estructuras (ALTER)
 28. Agregar restricción CHECK para que el género solo permita M o F.
 29. Agregar columna dFechaNacimiento.
 30. Crear una nueva tabla llamada TSucursal.
-
 */
+
+-- Modificación de estructuras
+
+-- Columnas agregadas a la tabla TEmpleado
+ALTER Table TEmpleado
+ADD cEmail nvarchar(255) UNIQUE,
+    cTelefono nvarchar(255),
+    cDireccion nvarchar(255),
+    nEdad INT CHECK (nEdad >= 18 AND nEdad <= 65),
+    bActivo BIT DEFAULT 1,
+    cGenero CHAR(1) CHECK (cGenero IN ('M', 'F')),
+    dFechaNacimiento DATE;
+
+-- Modificación de longitud de columnas
+ALTER table TEmpleado
+ALTER COLUMN cNombre NVARCHAR(100);
+
+Alter table TEmpleado
+ALTER COLUMN cApellido NVARCHAR(100);
+
+ALTER table TEmpleado
+ALTER COLUMN cTelefono VARCHAR(20);
+
+-- Eliminación de columna
+ALTER table TEmpleado
+DROP COLUMN cDireccion;
+
+-- Creación de tabla TSucursal
+CREATE TABLE TSucursal (
+    nSucursalID INT IDENTITY(1,1) PRIMARY KEY,
+    cNombreSucursal NVARCHAR(255) NOT NULL UNIQUE,
+    cDireccionSucursal NVARCHAR(255) NOT NULL
+);
