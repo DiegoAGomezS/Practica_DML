@@ -325,3 +325,85 @@ WHERE nDepartamentoID = 5
 69. Mostrar cantidad total de empleados activos.
 70. Mostrar el total de proyectos registrados. */
 
+-- Mostrar todos los empleados ordenados por apellido
+SELECT * FROM TEmpleado
+ORDER BY cApellido;
+
+-- Mostrar empleados con salario mayor a 1,000
+SELECT * FROM TEmpleado
+WHERE nSalario > 1000;
+
+-- Mostrar empleados activos
+SELECT * FROM TEmpleado
+WHERE bActivo = 1;
+
+-- Mostrar empleados contratados durante el año actual
+SELECT * FROM TEmpleado
+WHERE YEAR(dFechaContratacion) = YEAR(GETDATE());
+
+-- Mostrar empleados y el nombre de su departamento
+SELECT e.*, d.cNombreDepartamento
+FROM TEmpleado e
+JOIN TDepartamento d ON e.nDepartamentoID = d.nDepartamentoID;
+
+-- Mostrar empleados y el nombre de su cargo
+SELECT e.*, c.cNombreCargo
+FROM TEmpleado e
+JOIN TCargo c ON e.nCargoID = c.nCargoID;
+
+-- Mostrar empleados asignados a proyectos
+SELECT e.*, p.cNombreProyecto
+FROM TEmpleado e
+JOIN TEmpleadoProyecto ep ON e.nEmpleadoID = ep.nEmpleadoID
+JOIN TProyecto p ON ep.nProyectoID = p.nProyectoID;
+
+-- Mostrar cantidad de empleados por departamento
+SELECT d.cNombreDepartamento, COUNT(e.nEmpleadoID) AS CantidadEmpleados
+FROM TDepartamento d
+LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
+GROUP BY d.cNombreDepartamento;
+
+-- Mostrar salario promedio por departamento
+SELECT d.cNombreDepartamento, AVG(e.nSalario) AS SalarioPromedio
+FROM TDepartamento d
+LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
+GROUP BY d.cNombreDepartamento;
+
+-- Mostrar salario máximo y mínimo por departamento
+SELECT d.cNombreDepartamento, MAX(e.nSalario) AS SalarioMaximo, MIN(e.nSalario) AS SalarioMinimo
+FROM TDepartamento d
+LEFT JOIN TEmpleado e ON d.nDepartamentoID = e.nDepartamentoID
+GROUP BY d.cNombreDepartamento;
+
+-- Mostrar los proyectos con más de dos empleados asignados
+SELECT p.cNombreProyecto, COUNT(ep.nEmpleadoID) AS CantidadEmpleados
+FROM TProyecto p
+JOIN TEmpleadoProyecto ep ON p.nProyectoID = ep.nProyectoID
+GROUP BY p.cNombreProyecto
+HAVING COUNT(ep.nEmpleadoID) > 2;
+
+-- Mostrar empleados cuyo apellido inicia con "G"
+SELECT * FROM TEmpleado
+WHERE cApellido LIKE 'G%';
+
+-- Mostrar empleados ordenados por salario descendente
+SELECT * FROM TEmpleado
+ORDER BY nSalario DESC;
+
+-- Mostrar los tres salarios más altos
+SELECT TOP 3 nSalario
+FROM TEmpleado
+ORDER BY nSalario DESC;
+
+-- Mostrar empleados con edad entre 25 y 40 años
+SELECT * FROM TEmpleado
+WHERE nEdad BETWEEN 25 AND 40;
+
+-- Mostrar cantidad total de empleados activos
+SELECT COUNT(*) AS TotalEmpleadosActivos
+FROM TEmpleado
+WHERE bActivo = 1;
+
+-- Mostrar el total de proyectos registrados
+SELECT COUNT(*) AS TotalProyectos
+FROM TProyecto;
