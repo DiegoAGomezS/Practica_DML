@@ -407,3 +407,16 @@ WHERE bActivo = 1;
 -- Mostrar el total de proyectos registrados
 SELECT COUNT(*) AS TotalProyectos
 FROM TProyecto;
+
+/* Parte VII. Administración de Objetos
+71. Eliminar la restricción CHECK de edad.
+72. Eliminar la restricción UNIQUE del correo.
+73. Agregar nuevamente ambas restricciones.
+74. Eliminar la tabla TEmpleadoProyecto.
+75. Eliminar la tabla TProyecto.
+76. Eliminar la tabla TEmpleado.
+77. Eliminar la tabla TCargo.
+78. Eliminar la tabla TDepartamento.
+79. Eliminar la tabla TSucursal.
+80. Eliminar la base de datos EmpresaSQL.*/
+
